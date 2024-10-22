@@ -68,9 +68,86 @@ class DogeBridge {
                   VALUES (?, ?, ?, ?)";
         $this->executeQuery($query, [$block, $ntx, $size, $datetime]);
     }
+
+    public function findExchange($find,$address){ 
+        foreach($find["exchange"] as $name => $exchange){                   
+           foreach($exchange as $findout){
+             $pos = strpos($address, $findout);
+             if ($pos !== false) {
+               return $name;
+             };
+          };
+        }; 
+     }
+     
+     public function findMiner($find,$address){ 
+       foreach($find["miner"] as $name => $miner){                   
+          foreach($miner as $findout){
+            $pos = strpos($address, $findout);
+            if ($pos !== false) {
+              return $name;
+            };
+        }; 
+      };     
+     }     
 }
 
 $d = new DogeBridge($pdo);
+
+     
+      /* 
+        lets find out where and wen the miners new generated 
+        dogecoin enter on the known public Dogecoin Address's
+      */
+      $find["exchange"]["robinhood"][] = "DPDLBAe3RGQ2GiPxDzhgjcmpZCZD8cSBgZ";
+      
+      $find["exchange"]["binance"][]   = "DE5opaXjFgDhFBqL6tBDxTAQ56zkX6EToX";
+      $find["exchange"]["binance"][]   = "DQA5h47M4NdTt2mKDj4nP2VNZWczZi42RY"; // dono if is binance
+      $find["exchange"]["binance"][]   = "DDuXGMFNGpGjaAqyDunSMvceMBruc1wwKF"; // dono if is binance because is a loop
+      $find["exchange"]["binance"][]   = "DHQsfy66JsYSnwjCABFN6NNqW4kHQe63oU"; // dono if is binance because is a loop
+      
+      $find["exchange"]["binance"][]   = "DJfU2p6woQ9GiBdiXsWZWJnJ9uDdZfSSNC";
+      $find["exchange"]["binance"][]   = "DGmzv39riELTuigZCUD6sWoHEHPdSbxdUB";
+      
+      $find["exchange"]["kraken"][]    = "D8WhgsmFUkf4imvsrwYjdhXL45LPz3bS1S";
+      $find["exchange"]["kraken"][]    = "DR2SpAVZPwJDVxJgTkJvGej3HC5aLBhQBM";
+      $find["exchange"]["kraken"][]    = "DLtqyzfk5JdwLDhWT6VHLecGL3D2vXznmX";
+      $find["exchange"]["kraken"][]    = "DNBSNPvc29e14oMDo6vMR5Zb6uGTRYvVmY";
+      $find["exchange"]["kraken"][]    = "DTcvX4DFe8TCpoxneurPWcfuskTxCQdHfh";
+      $find["exchange"]["kraken"][]    = "DEmDBsiKxzBBwwXs8Cu3jBhwepENmXqrYj";
+      $find["exchange"]["kraken"][]    = "DSFZTXbGJGMdjVakNsDjK15eVPdLJGi6hQ";
+      $find["exchange"]["kraken"][]    = "DFSx1g9WW1f29Tnny26g58M35WVsVTG7e3";
+      $find["exchange"]["kraken"][]    = "DPctHazrfYyRbeTLtg4qg5X6bZCzyS2GpC";
+      $find["exchange"]["kraken"][]    = "DQBJFhhorivTPDDHD2Prg6W6mbBHXJGk4V";
+      $find["exchange"]["kraken"][]    = "DQBVCsBKuyR19UHzPZK9r2kxksousFLeWz";
+      $find["exchange"]["kraken"][]    = "DQQftxWRPoFgxdf1RJVBCkX1LW5vy8xsV5";
+      $find["exchange"]["kraken"][]    = "DFdNZmmhAb9gNJm2HxfuHFHgCEuHiRL6uX";
+      $find["exchange"]["kraken"][]    = "DSPYeHCvBoENJcnNiyrPSbYUA2daxDNzsJ";
+      $find["exchange"]["kraken"][]    = "DAu272zSbfXkguSFS2xndd7FVjGEUzScYC";
+      $find["exchange"]["kraken"][]    = "D8znqeuFkxCfvyEFtudGxoaYJjP7A2yxti";
+      $find["exchange"]["kraken"][]    = "DTE2rj2tcq1b2Gt5cTxnPZdJM7dAAurxFy";
+      $find["exchange"]["kraken"][]    = "DEdpq3THF6HBE4u4Shj8WrTZZSWcozePYw";
+      $find["exchange"]["kraken"][]    = "DSPRCNM3CU3sAKmDd7qoeF9XfHPxCQSJkF";
+      $find["exchange"]["kraken"][]    = "D7GD51VpzLk5LuKD6XqYDBMBCdNwxDPKcG";
+      
+      $find["exchange"]["cryptocom"][] = "D61T1GVeMZM8UHvXKyyD55Ur9efAF2mb5f";
+      
+      $find["exchange"]["coinbase"][] = "DDUoTGov76gcqAEBXXpUHzSuSQkPYKze9N";
+      $find["exchange"]["coinbase"][] = "DUEnRvVqTTR3nsXMtVrEyayyuzawPKcbgD";
+      $find["exchange"]["coinbase"][] = "DJE8ECVEc5NZeAxaA3sgFmrGqLP1KQMJVB";
+  
+      
+      /* 
+        We alredy know the top centralized miner pools
+        tracking for the last days all dogecoin blocks rewards
+      */    
+      $find["miner"]["viabtc"][] = "DMqRVLrhbam3Kcfddpxd6EYvEBbpi3bEpP"; // ~35% ??????????????????? 
+      $find["miner"]["f2pool"][] = "DTZSTXecLmSXpRGSfht4tAMyqra1wsL7xb"; // ~15% ???????????????????
+      $find["miner"]["antpool"][] = "DMr3fEiVrPWFpoCWS958zNtqgnFb7QWn9D"; // ~15% ??????????????????
+      $find["miner"]["litecoinpool"][] = "DDPodQNBoj4FHDgKWSBXJyC1jV88YqedzW"; // ~13%
+      $find["miner"]["pooling"][] = "DPwQPzebSMcN4kzkcdEvqE8rE2r8SfJ8pC"; // ~5%
+      $find["miner"]["unknown"][] = "DHFu8WjwXzHVy9pknMrxdQpePFir2FmiuG"; // ~3%
+      
 
 // Function to format bytes
 if (!function_exists('formatBytes')) {
