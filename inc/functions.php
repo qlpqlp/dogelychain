@@ -73,7 +73,55 @@
     
     // Instantiate DogeBridge
     $d = new DogeBridge($pdo);
-    
+
+    // Process "blocks" request
+    if (isset($_REQUEST["blocks"])) {
+        echo "Blocks";
+
+        // Fetch blockchain info and best block hash
+        $blockchainInfo = dogecoin_rpc($config,"getblockchaininfo", []);
+        $_REQUEST["bestblockhash"] = $blockchainInfo;
+        print_r($blockchainInfo);
+
+        $block = $blockchainInfo['blocks'];
+        $blockData = dogecoin_rpc($config,"getblock", [$blockchainInfo["bestblockhash"]]);
+        $_REQUEST["block_decode"] = $blockData;
+
+        $ntx = count($blockData['tx']);
+        $tx = $blockData['tx'][0];
+        $txDetails = dogecoin_rpc($config,"getrawtransaction", [$tx, 1]);
+
+        // Prepare transaction details
+        $json = json_encode($txDetails);
+        $txid = $txDetails["txid"];
+        $tag = substr($txDetails["hex"], 86, 10);
+        $time = $txDetails["time"];
+        $blocktime = $txDetails["blocktime"];
+
+        // Check if transaction already exists in the database
+        $db = $pdo->query("SELECT txid FROM coinbase WHERE txid = '$txid' LIMIT 1")->fetch();
+        if (!isset($db["txid"])) {
+
+            // Process coinbase data
+            foreach ($txDetails["vin"] as $txValue) {
+                $coinbase = $txValue["coinbase"];
+                $sequence = $txValue["sequence"];
+                $d->AddCoinBase($txid, $coinbase, $tag, $sequence, $time, $blocktime, $json);
+            }
+
+            // Process vout data
+            foreach ($txDetails["vout"] as $txValue) {
+                $value = $txValue["value"];
+                foreach ($txValue["scriptPubKey"]["addresses"] as $address) {
+                    $d->AddVout($txid, $address, $value);
+                }
+            }
+
+            // Optional: execute in background to add additional tracking details
+            // $_REQUEST["fetch"] = 1;
+        }
+    }    
+
     // Handle different $_REQUEST cases
     if (isset($_REQUEST["fullblocks"])) {
         // Processing of full blocks
@@ -119,21 +167,7 @@
         }
         echo "<br>Finished!";
     }
-    
-    if (isset($_REQUEST["blocks"])) {
-        echo "Blocks";
-        $blockInfo = dogecoin_rpc($config,"getblockchaininfo", []);
-        $_REQUEST["bestblockhash"] = $blockInfo;
-        $blockData = dogecoin_rpc($config,"getblock", [$blockInfo["bestblockhash"]]);
-        $_REQUEST["block_decode"] = $blockData;
-    
-        foreach ($blockData["vout"] as $txvalue) {
-            foreach ($txvalue["scriptPubKey"]["addresses"] as $address) {
-                $d->addVout($blockData["txid"], $address, $txvalue["value"]);
-            }
-        }
-        echo "<br>Finished!";
-    }
+
     
     // Define functions to find exchanges and miners
     function findExchange($find, $address) {
